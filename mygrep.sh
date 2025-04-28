@@ -9,11 +9,13 @@ fi
 # Parse options
 show_line_numbers=false
 invert_match=false
+ignore_case=false
 
-while getopts "nv" option; do
+while getopts "nvI" option; do
     case "$option" in
         n) show_line_numbers=true ;;
         v) invert_match=true ;;
+        I) ignore_case=true ;;  # Add -I for case-insensitive search
         *) echo "Invalid option"; exit 1 ;;
     esac
 done
@@ -29,13 +31,18 @@ if [ ! -f "$file" ]; then
     exit 1
 fi
 
-#search
+# Perform the search directly
+grep_options=""
+if $ignore_case; then
+    grep_options="$grep_options -i"  # Add -i for case-insensitive search
+fi
+
 if $invert_match; then
-    grep -v "$search_string" "$file"
+    grep $grep_options -v "$search_string" "$file"
 else
     if $show_line_numbers; then
-        grep -n "$search_string" "$file"
+        grep $grep_options -n "$search_string" "$file"
     else
-        grep "$search_string" "$file"
-    fi
+        grep $grep_options "$search_string" "$file"
+    fi
 fi
